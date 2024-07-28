@@ -2,6 +2,8 @@ from django.shortcuts import redirect, render
 from accounts.forms import UserForm
 from accounts.models import User
 from django.contrib import messages
+
+from vendor.forms import VendorForm
 # Create your views here.
 def register_user(request):
   if request.method == 'POST':
@@ -27,4 +29,10 @@ def register_user(request):
   return render(request, 'accounts/register_user.html', context)
 
 def register_vendor(request):
-  return render(request, 'accounts/register_vendor.html')
+  form = UserForm()
+  v_form = VendorForm()
+  context = {
+    'form': form,
+    'v_form': v_form
+  }
+  return render(request, 'accounts/register_vendor.html', context)
