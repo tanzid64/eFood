@@ -1,13 +1,12 @@
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from accounts.decorators import guest_user_only
+from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages, auth
-
+from accounts.utils import detect_user, vendor_required, customer_required, guest_user_only
 from vendor.forms import VendorForm
 # Create your views here.
-@guest_user_only
+@user_passes_test(guest_user_only, login_url='my-account')
 def register_user(request):
   if request.method == 'POST':
     form = UserForm(request.POST)
@@ -31,7 +30,7 @@ def register_user(request):
     }
   return render(request, 'accounts/register_user.html', context)
 
-@guest_user_only
+@user_passes_test(guest_user_only, login_url='my-account')
 def register_vendor(request):
   if request.method == 'POST':
     form = UserForm(request.POST)
@@ -63,7 +62,7 @@ def register_vendor(request):
   }
   return render(request, 'accounts/register_vendor.html', context)
 
-@guest_user_only
+@user_passes_test(guest_user_only, login_url='my-account')
 def login(request):
   if request.method == 'POST':
     email = request.POST['email']
@@ -72,7 +71,7 @@ def login(request):
     if user:
       auth.login(request, user)
       messages.success(request, 'You are now logged in')
-      return redirect('dashboard')
+      return redirect('my-account')
     else:
       messages.error(request, 'Invalid login credentials')
       return redirect('login')
@@ -85,6 +84,18 @@ def logout(request):
   return redirect('login')
 
 @login_required(login_url='login')
-def dashboard(request):
+def my_account(request):
+  user = request.user
+  redirect_url = detect_user(user)
+  return redirect(redirect_url)
+
+@login_required(login_url='login')
+@user_passes_test(customer_required)
+def customer_dashboard(request):
+  return render(request, 'accounts/dashboard.html')
+
+@login_required(login_url='login')
+@user_passes_test(vendor_required)
+def vendor_dashboard(request):
   return render(request, 'accounts/dashboard.html')
 

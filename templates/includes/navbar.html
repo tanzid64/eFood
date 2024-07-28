@@ -27,7 +27,7 @@
 						<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
 							<div class="login-option">
 								{% if request.user.is_authenticated %}
-								<a class="cs-color  login-popup"  href="{% url 'dashboard' %}">
+								<a class="cs-color  login-popup"  href="{% url 'my-account' %}">
 									Dashboard
 								</a>
 								<a class="get-start-btn" href="{% url 'logout' %}">
