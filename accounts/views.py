@@ -1,10 +1,13 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from accounts.decorators import guest_user_only
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
-from django.contrib import messages
+from django.contrib import messages, auth
 
 from vendor.forms import VendorForm
 # Create your views here.
+@guest_user_only
 def register_user(request):
   if request.method == 'POST':
     form = UserForm(request.POST)
@@ -28,6 +31,7 @@ def register_user(request):
     }
   return render(request, 'accounts/register_user.html', context)
 
+@guest_user_only
 def register_vendor(request):
   if request.method == 'POST':
     form = UserForm(request.POST)
@@ -58,3 +62,29 @@ def register_vendor(request):
     'v_form': v_form
   }
   return render(request, 'accounts/register_vendor.html', context)
+
+@guest_user_only
+def login(request):
+  if request.method == 'POST':
+    email = request.POST['email']
+    password = request.POST['password']
+    user = auth.authenticate(email=email, password=password)
+    if user:
+      auth.login(request, user)
+      messages.success(request, 'You are now logged in')
+      return redirect('dashboard')
+    else:
+      messages.error(request, 'Invalid login credentials')
+      return redirect('login')
+  return render(request, 'accounts/login.html')
+
+@login_required(login_url='login')
+def logout(request):
+  auth.logout(request)
+  messages.info(request, 'You are logged out')
+  return redirect('login')
+
+@login_required(login_url='login')
+def dashboard(request):
+  return render(request, 'accounts/dashboard.html')
+
