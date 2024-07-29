@@ -3,8 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
+from menu.models import Category, FoodItem
 from vendor.forms import VendorForm
 from vendor.models import Vendor
+from vendor.utils import get_vendor
 
 # Create your views here.
 @login_required(login_url='login')
@@ -31,3 +33,27 @@ def vendor_profile(request):
     'vendor': vendor
   }
   return render(request, 'vendor/vendor_profile.html', context)
+
+@login_required(login_url='login')
+def menu_builder(request):
+  vendor = Vendor.objects.get(user=request.user)
+  categories = Category.objects.filter(vendor=vendor)
+  context = {
+    'categories': categories
+  }
+  return render(request, 'vendor/menu_builder.html')
+
+@login_required(login_url='login')
+def food_items_by_category(request, pk=None):
+  vendor = Vendor.objects.get(user=request.user)
+  category = get_object_or_404(Category, pk=pk)
+  food_items = FoodItem.objects.filter(vendor=vendor, category=category)
+  context = {
+    'foodItems': food_items,
+    'category': category
+  }
+  return render(request, 'vendor/food_items_by_category.html', context)
+
+
+def add_category(request):
+  pass
