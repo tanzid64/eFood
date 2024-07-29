@@ -38,11 +38,11 @@ def vendor_profile(request):
 @login_required(login_url='login')
 def menu_builder(request):
   vendor = Vendor.objects.get(user=request.user)
-  categories = Category.objects.filter(vendor=vendor)
+  categories = Category.objects.filter(vendor=vendor).order_by('created_at')
   context = {
     'categories': categories
   }
-  return render(request, 'vendor/menu_builder.html')
+  return render(request, 'vendor/menu_builder.html', context)
 
 @login_required(login_url='login')
 def food_items_by_category(request, pk=None):
@@ -55,7 +55,7 @@ def food_items_by_category(request, pk=None):
   }
   return render(request, 'vendor/food_items_by_category.html', context)
 
-
+@login_required(login_url='login')
 def add_category(request):
   if request.method == 'POST':
     form = CategoryForm(request.POST)
@@ -73,3 +73,32 @@ def add_category(request):
     'form': form
   }
   return render(request, 'vendor/add_category.html', context)
+
+@login_required(login_url='login')
+def edit_category(request, pk=None):
+  category = get_object_or_404(Category, pk=pk)
+  if request.method == 'POST':
+    form = CategoryForm(request.POST, instance=category)
+    if form.is_valid():
+      category_name = form.cleaned_data['category_name']
+      vendor = Vendor.objects.get(user=request.user)
+      category = form.save(commit=False)
+      category.vendor = vendor
+      category.slug = slugify(category_name)
+      category.save()
+      messages.success(request, 'Category updated successfully')
+      return redirect('menu-builder')
+  form = CategoryForm(instance=category)
+  context ={
+    'form': form,
+    'category': category
+  }
+  return render(request, 'vendor/edit_category.html', context)
+
+@login_required(login_url='login')
+def delete_category(request, pk=None):
+  category = get_object_or_404(Category, pk=pk)
+  category.delete()
+  messages.success(request, 'Category deleted successfully')
+  return redirect('menu-builder')
+
