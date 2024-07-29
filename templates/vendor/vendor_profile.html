@@ -15,10 +15,10 @@
                 <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                     <div class="user-dashboard loader-holder">
                         <div class="user-holder">
-                            <h5 class="text-uppercase">Manage Your Restaurant</h5>
+                  <h5 class="text-uppercase">Manage Your Restaurant</h5>
 									<!-- My Restaurants Form Start -->
-									<form action="{% url 'vprofile' %}" method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
+									<form action="{% url 'vendor-profile' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
 										<div class="form-fields-set">
 											<ul>
 												<li>
@@ -105,59 +105,55 @@
 																{{vendor_form.vendor_name}}
 															</div>
 														</div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>Address *</label>
 																{{profile_form.address}}
 																<small class="text-muted float-right">powered by Google</small>
 															</div>
 														</div>
-                                                        
 
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>Country *</label>
 																{{profile_form.country}}
 															</div>
 														</div>
-
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+														<!--
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>State *</label>
 																{{profile_form.state}}
 															</div>
 														</div>
-
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+														-->
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>City *</label>
 																{{profile_form.city}}
 															</div>
 														</div>
 
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>Pin Code *</label>
 																{{profile_form.pin_code}}
 															</div>
 														</div>
 
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>Latitude *</label>
 																{{profile_form.latitude}}
 															</div>
 														</div>
 
-                                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<div class="field-holder">
 																<label>Longitude *</label>
 																{{profile_form.longitude}}
 															</div>
 														</div>
-
-
-														
 													</div>
 												</li>
 											</ul>
