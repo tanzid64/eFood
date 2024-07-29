@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages, auth
-from accounts.utils import detect_user, save_user, send_verification_email, vendor_required, customer_required, guest_user_only
+from accounts.utils import detect_user, save_user, send_password_reset_email, send_verification_email, vendor_required, customer_required, guest_user_only
 from vendor.forms import VendorForm
 # Create your views here.
 @user_passes_test(guest_user_only, login_url='my-account')
@@ -105,4 +105,25 @@ def customer_dashboard(request):
 @user_passes_test(vendor_required)
 def vendor_dashboard(request):
   return render(request, 'accounts/dashboard.html')
+
+def forgot_password(request):
+  if request.method == 'POST':
+    email = request.POST['email']
+    if User.objects.filter(email=email).exists():
+      user = User.objects.get(email__exact=email)
+      # Send reset password email
+      send_password_reset_email(request, user)
+      messages.success(request, 'Password reset link has been sent to your email')
+      return redirect('login')
+    else:
+      messages.error(request, 'Account does not exist')
+      return redirect('forgot-password')
+  return render(request, 'accounts/forgot_password.html')
+
+def reset_password_validate(request, uidb64, token):
+  pass
+
+def reset_password(request):
+  return render(request, 'accounts/reset_password.html')
+
 

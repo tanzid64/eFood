@@ -1,4 +1,4 @@
-from email.message import EmailMessage
+from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -31,7 +31,13 @@ def send_verification_email(request, user):
     'token': default_token_generator.make_token(user),
   })
   to_email = user.email
-  EmailMessage(subject=email_subject, body=email_body, from_email=from_email, to=[to_email]).send()
+  email = EmailMessage(
+        subject=email_subject,
+        body=email_body,
+        from_email=from_email,
+        to=[to_email],
+    )
+  email.send()
 
 def detect_user(user):
   if user.role == 1:
@@ -58,3 +64,25 @@ def customer_required(user):
   
 def guest_user_only(user):
   return not user.is_authenticated
+
+
+def send_password_reset_email(request, user):
+    domain = get_current_site(request).domain
+    from_email = settings.DEFAULT_FROM_EMAIL
+    email_subject = 'eFood: Reset your password'
+    email_body = render_to_string('accounts/emails/reset_password_email.html', {
+        'user': user,
+        'domain': domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': default_token_generator.make_token(user),
+    })
+    to_email = user.email
+
+    email = EmailMessage(
+        subject=email_subject,
+        body=email_body,
+        from_email=from_email,
+        to=[to_email],
+    )
+    email.send()
+
