@@ -7,6 +7,7 @@ from accounts.models import User, UserProfile
 from django.contrib import messages, auth
 from accounts.utils import detect_user, save_user, send_verification_email, vendor_required, customer_required, guest_user_only
 from vendor.forms import VendorForm
+from vendor.models import Vendor
 # Create your views here.
 @user_passes_test(guest_user_only, login_url='my-account')
 def register_user(request):
@@ -106,7 +107,7 @@ def customer_dashboard(request):
 @login_required(login_url='login')
 @user_passes_test(vendor_required)
 def vendor_dashboard(request):
-  return render(request, 'accounts/dashboard.html')
+  return render(request, 'accounts/vendor-dashboard.html')
 
 def forgot_password(request):
   if request.method == 'POST':
