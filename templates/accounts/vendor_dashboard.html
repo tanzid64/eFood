@@ -60,28 +60,28 @@
                                         <div class="responsive-table">
                                             <table class="table table-hover table-borderless" id="myOrdersTable">
                                                 <thead>
-                                                  <tr>
+                                                <tr>
                                                     <th scope="col">Order #</th>
                                                     <th scope="col">Name</th>
                                                     <th scope="col">Total</th>
                                                     <th scope="col">Status</th>
                                                     <th scope="col">Date</th>
                                                     <th scope="col">Action</th>
-                                                  </tr>
+                                                </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for order in recent_orders %}
-                                                  <tr>
+                                                <tr>
                                                     <td>{{ order.order_number }}</td>
                                                     <td>{{ order.name }}</td>
                                                     <td>${{ order.get_total_by_vendor.grand_total }}</td>
                                                     <td>{{ order.status }}</td>
                                                     <td>{{ order.created_at }}</td>
                                                     <td><a href="#" class="btn btn-danger">Details</a></td>
-                                                  </tr>
-                                                  {% endfor %}
+                                                </tr>
+                                                {% endfor %}
                                                 </tbody>
-                                              </table>
+                                            </table>
                                         </div>												
                                     </div>
                                 </div>
