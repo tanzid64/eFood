@@ -3,10 +3,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
+from menu.forms import CategoryForm
 from menu.models import Category, FoodItem
 from vendor.forms import VendorForm
 from vendor.models import Vendor
-from vendor.utils import get_vendor
+from django.template.defaultfilters import slugify
 
 # Create your views here.
 @login_required(login_url='login')
@@ -56,4 +57,19 @@ def food_items_by_category(request, pk=None):
 
 
 def add_category(request):
-  pass
+  if request.method == 'POST':
+    form = CategoryForm(request.POST)
+    if form.is_valid():
+      category_name = form.cleaned_data['category_name']
+      vendor = Vendor.objects.get(user=request.user)
+      category = form.save(commit=False)
+      category.vendor = vendor
+      category.slug = slugify(category_name)
+      category.save()
+      messages.success(request, 'Category added successfully')
+      return redirect('menu-builder')
+  form = CategoryForm()
+  context ={
+    'form': form
+  }
+  return render(request, 'vendor/add_category.html', context)
