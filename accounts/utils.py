@@ -1,4 +1,5 @@
 from email.message import EmailMessage
+from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
@@ -21,6 +22,7 @@ def save_user(form, role):
 
 def send_verification_email(request, user):
   domain = get_current_site(request)
+  from_email = settings.DEFAULT_FROM_EMAIL
   email_subject = 'Please activate your account'
   email_body = render_to_string('accounts/emails/account_verification_email.html', {
     'user': user,
@@ -29,7 +31,7 @@ def send_verification_email(request, user):
     'token': default_token_generator.make_token(user),
   })
   to_email = user.email
-  EmailMessage(subject=email_subject, body=email_body, to=[to_email]).send()
+  EmailMessage(subject=email_subject, body=email_body, from_email=from_email, to=[to_email]).send()
 
 def detect_user(user):
   if user.role == 1:

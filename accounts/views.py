@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
@@ -24,6 +26,8 @@ def register_user(request):
     }
   return render(request, 'accounts/register_user.html', context)
 
+
+
 @user_passes_test(guest_user_only, login_url='my-account')
 def register_vendor(request):
   if request.method == 'POST':
@@ -31,6 +35,7 @@ def register_vendor(request):
     v_form = VendorForm(request.POST, request.FILES)
     if form.is_valid() and v_form.is_valid():
       user = save_user(form, User.VENDOR)
+      send_verification_email(request, user)
       vendor = v_form.save(commit=False)
       vendor.user = user
       user_profile = UserProfile.objects.get(user=user)
@@ -50,7 +55,19 @@ def register_vendor(request):
   return render(request, 'accounts/register_vendor.html', context)
 
 def activate(request, uidb64, token):
-  pass
+  try:
+    uid = urlsafe_base64_decode(uidb64).decode()
+    user = User._default_manager.get(pk=uid)
+  except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    user = None
+  if user is not None and default_token_generator.check_token(user, token):
+    user.is_active = True
+    user.save()
+    messages.success(request, 'Congratulations! Your account is activated')
+    return redirect('my-account')
+  else:
+    messages.error(request, 'Invalid activation link')
+    return redirect('register-user')
 
 @user_passes_test(guest_user_only, login_url='my-account')
 def login(request):
