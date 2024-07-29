@@ -116,6 +116,7 @@ def add_food(request):
       messages.success(request, 'Food item added successfully')
       return redirect('menu-builder')
   form = FoodItemForm()
+  form.fields['category'].queryset = Category.objects.filter(vendor__user=request.user)
   context = {
     'form': form
   }
