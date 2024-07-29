@@ -7,7 +7,7 @@ from accounts.models import User, UserProfile
 from django.contrib import messages, auth
 from accounts.utils import detect_user, save_user, send_verification_email, vendor_required, customer_required, guest_user_only
 from vendor.forms import VendorForm
-from vendor.models import Vendor
+from django.template.defaultfilters import slugify
 # Create your views here.
 @user_passes_test(guest_user_only, login_url='my-account')
 def register_user(request):
@@ -39,7 +39,9 @@ def register_vendor(request):
       email_subject = 'Please activate your account'
       template = 'accounts/emails/account_verification_email.html'
       send_verification_email(request, user, email_subject, template)
+      vendor_name = v_form.cleaned_data['vendor_name']
       vendor = v_form.save(commit=False)
+      vendor.vendor_slug = slugify(vendor_name)
       vendor.user = user
       user_profile = UserProfile.objects.get(user=user)
       vendor.user_profile = user_profile
