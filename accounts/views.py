@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages, auth
-from accounts.utils import detect_user, vendor_required, customer_required, guest_user_only
+from accounts.utils import detect_user, save_user, send_verification_email, vendor_required, customer_required, guest_user_only
 from vendor.forms import VendorForm
 # Create your views here.
 @user_passes_test(guest_user_only, login_url='my-account')
@@ -11,15 +11,9 @@ def register_user(request):
   if request.method == 'POST':
     form = UserForm(request.POST)
     if form.is_valid():
-      first_name = form.cleaned_data['first_name']
-      last_name = form.cleaned_data['last_name']
-      username = form.cleaned_data['username']
-      email = form.cleaned_data['email']
-      password = form.cleaned_data['password']
-      user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
-      user.role = User.CUSTOMER
-      user.save()
-      messages.success(request, 'Your account has been registered successfully! You are now able to log in')
+      user = save_user(form, User.CUSTOMER)
+      send_verification_email(request, user)
+      messages.success(request, 'Your account has been registered successfully! Check your email for verification email')
       return redirect('register-user')
     else:
       pass
@@ -36,14 +30,7 @@ def register_vendor(request):
     form = UserForm(request.POST)
     v_form = VendorForm(request.POST, request.FILES)
     if form.is_valid() and v_form.is_valid():
-      first_name = form.cleaned_data['first_name']
-      last_name = form.cleaned_data['last_name']
-      username = form.cleaned_data['username']
-      email = form.cleaned_data['email']
-      password = form.cleaned_data['password']
-      user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
-      user.role = User.VENDOR
-      user.save()
+      user = save_user(form, User.VENDOR)
       vendor = v_form.save(commit=False)
       vendor.user = user
       user_profile = UserProfile.objects.get(user=user)
@@ -61,6 +48,9 @@ def register_vendor(request):
     'v_form': v_form
   }
   return render(request, 'accounts/register_vendor.html', context)
+
+def activate(request, uidb64, token):
+  pass
 
 @user_passes_test(guest_user_only, login_url='my-account')
 def login(request):
