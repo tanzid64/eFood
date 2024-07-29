@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
-from menu.forms import CategoryForm
+from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
 from vendor.forms import VendorForm
 from vendor.models import Vendor
@@ -102,3 +102,48 @@ def delete_category(request, pk=None):
   messages.success(request, 'Category deleted successfully')
   return redirect('menu-builder')
 
+
+@login_required(login_url='login')
+def add_food(request):
+  if request.method == 'POST':
+    form = FoodItemForm(request.POST, request.FILES)
+    if form.is_valid():
+      food_title = form.cleaned_data['food_title']
+      food = form.save(commit=False)
+      food.vendor = Vendor.objects.get(user=request.user)
+      food.slug = slugify(food_title)
+      form.save()
+      messages.success(request, 'Food item added successfully')
+      return redirect('menu-builder')
+  form = FoodItemForm()
+  context = {
+    'form': form
+  }
+  return render(request, 'vendor/add_food.html', context)
+
+@login_required(login_url='login')
+def edit_food(request, pk=None):
+  food = get_object_or_404(FoodItem, pk=pk)
+  if request.method == 'POST':
+    form = FoodItemForm(request.POST, request.FILES, instance=food)
+    if form.is_valid():
+      food_title = form.cleaned_data['food_title']
+      food = form.save(commit=False)
+      food.vendor = Vendor.objects.get(user = request.user)
+      food.slug = slugify(food_title)
+      form.save()
+      messages.success(request, 'Food item updated successfully')
+      return redirect('menu-builder')
+  form = FoodItemForm(instance=food)
+  context = {
+    'form': form,
+    'food': food
+  }
+  return render(request, 'vendor/edit_food.html', context)
+
+@login_required(login_url='login')
+def delete_food(request, pk=None):
+  food = get_object_or_404(FoodItem, pk=pk)
+  food.delete()
+  messages.success(request, 'Food item deleted successfully')
+  return redirect('menu-builder')
