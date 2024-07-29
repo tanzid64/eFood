@@ -20,11 +20,10 @@ def save_user(form, role):
   return user
 
 
-def send_verification_email(request, user):
+def send_verification_email(request, user, email_subject, template):
   domain = get_current_site(request)
   from_email = settings.DEFAULT_FROM_EMAIL
-  email_subject = 'Please activate your account'
-  email_body = render_to_string('accounts/emails/account_verification_email.html', {
+  email_body = render_to_string(template , {
     'user': user,
     'domain': domain,
     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -32,10 +31,10 @@ def send_verification_email(request, user):
   })
   to_email = user.email
   email = EmailMessage(
-        subject=email_subject,
-        body=email_body,
-        from_email=from_email,
-        to=[to_email],
+      subject=email_subject,
+      body=email_body,
+      from_email=from_email,
+      to=[to_email],
     )
   email.send()
 
@@ -64,25 +63,4 @@ def customer_required(user):
   
 def guest_user_only(user):
   return not user.is_authenticated
-
-
-def send_password_reset_email(request, user):
-    domain = get_current_site(request).domain
-    from_email = settings.DEFAULT_FROM_EMAIL
-    email_subject = 'eFood: Reset your password'
-    email_body = render_to_string('accounts/emails/reset_password_email.html', {
-        'user': user,
-        'domain': domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': default_token_generator.make_token(user),
-    })
-    to_email = user.email
-
-    email = EmailMessage(
-        subject=email_subject,
-        body=email_body,
-        from_email=from_email,
-        to=[to_email],
-    )
-    email.send()
 
